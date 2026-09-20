@@ -1,0 +1,16 @@
+# Unified Chaos Platform - robots.txt
+# https://github.com/technoporada/unified-chaos-platform
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://technoporada.github.io/unified-chaos-platform/sitemap.xml
+
+# Crawl-delay for polite bots
+Crawl-delay: 1
+
+# Disallow sensitive paths
+Disallow: /api/
+Disallow: /config
+Disallow: *.log

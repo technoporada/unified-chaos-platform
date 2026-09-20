@@ -1,0 +1,222 @@
+{
+  "PLATFORM": {
+    "name": "Unified Chaos Platform v1.0",
+    "version": "1.0",
+    "description": "Integrated Network Analysis & Security Testing Suite",
+    "author": "Security Research",
+    "last_updated": "2026-04-09"
+  },
+
+  "DEFAULT_PORTS": {
+    "ISP_OBFUSCATOR_LISTEN": 8888,
+    "VICTIM_SERVER": 9000,
+    "CHAOS_PROXY_LISTEN": 11112,
+    "CHAOS_PROXY_TARGET": 11111,
+    "HTTP_INTERCEPTOR_LISTEN": 8888,
+    "TCP_FRAGMENTER_LISTEN": 8888,
+    "TRAFFIC_AUDIT_LISTEN": 8888,
+    "SMUGGLING_HTTPS": 443
+  },
+
+  "CHAOS_PROXY": {
+    "enabled": true,
+    "listen_port": 11112,
+    "target_host": "127.0.0.1",
+    "target_port": 11111,
+    "mutation_rate": 0.1,
+    "buffer_size": 8192,
+    "description": "Przechwytywanie + losowa mutacja pakietów"
+  },
+
+  "ISP_OBFUSCATOR": {
+    "enabled": true,
+    "listen_port": 8888,
+    "target_host": "127.0.0.1",
+    "target_port": 9000,
+    "padding_min": 10,
+    "padding_max": 500,
+    "jitter_min_ms": 1,
+    "jitter_max_ms": 50,
+    "description": "Obfuskacja przez padding + jitter"
+  },
+
+  "HTTP_INTERCEPTOR": {
+    "enabled": true,
+    "listen_port": 8888,
+    "target_host": "127.0.0.1",
+    "target_port": 9000,
+    "keywords": ["user", "pass", "token", "auth", "key", "secret"],
+    "buffer_size": 4096,
+    "description": "Przechwytywanie HTTP + wyszukiwanie keywords"
+  },
+
+  "TCP_FRAGMENTER": {
+    "enabled": true,
+    "listen_port": 8888,
+    "target_host": "127.0.0.1",
+    "target_port": 9000,
+    "fragment_size_min": 1,
+    "fragment_size_max": 5,
+    "fragment_delay_ms": 0.1,
+    "description": "Fragmentacja na mikro-pakiety"
+  },
+
+  "SMUGGLING_PROBE": {
+    "enabled": true,
+    "port": 443,
+    "timeout_seconds": 5,
+    "timeout_threshold": 3.0,
+    "description": "Test podatności HTTP Request Smuggling"
+  },
+
+  "BULK_SMUGGLING_TESTER": {
+    "enabled": true,
+    "threads": 20,
+    "timeout_per_target": 7,
+    "port": 443,
+    "ssl_verify": false,
+    "description": "Masowy test Request Smuggling (paralelnie)"
+  },
+
+  "TRAFFIC_AUDIT": {
+    "enabled": true,
+    "listen_port": 8888,
+    "target_host": "127.0.0.1",
+    "target_port": 9000,
+    "sensitive_patterns": [
+      "password",
+      "login",
+      "session_id",
+      "cookie",
+      "api_key",
+      "access_key",
+      "secret",
+      "bearer_token",
+      "authorization"
+    ],
+    "description": "Monitorowanie wrażliwych danych"
+  },
+
+  "AUDIT_SCANNER": {
+    "enabled": true,
+    "default_path": "d:\\Game",
+    "file_extensions": [".py", ".js", ".sh", ".php", ".cpp"],
+    "patterns": {
+      "SENSITIVE_DATA": "(password|secret|api_key|token|access_key|private_key)[\\s]*[:=][\\s]*['\\\"].*['\\\"]",
+      "SHELL_INJECTION": "(os\\.system|subprocess\\.Popen|exec\\(|eval\\()",
+      "NETWORK_SOCKETS": "(socket\\.socket|requests\\.|urllib\\.)",
+      "FILE_DESTRUCTION": "(os\\.remove|os\\.rmdir|shutil\\.rmtree)",
+      "EXPLOIT_MARKERS": "(payload|shellcode|exploit|backdoor|reverse_shell)",
+      "PATH_TRAVERSAL": "\\.\\.?/\\.\\.?/"
+    },
+    "description": "Skan kodu na vulnerabilities"
+  },
+
+  "VICTIM_SERVER": {
+    "enabled": true,
+    "port": 9000,
+    "bind_address": "127.0.0.1",
+    "max_connections": 5,
+    "response": "HTTP/1.1 200 OK\\r\\nContent-Type: text/plain\\r\\n\\r\\nSystem Secure",
+    "description": "Symulowany serwer testowy"
+  },
+
+  "STATISTICS": {
+    "enabled": true,
+    "real_time_update": true,
+    "update_interval_ms": 100,
+    "store_vulnerabilities": true,
+    "export_format": "json",
+    "description": "Ujednolicony system statystyk"
+  },
+
+  "LOGGING": {
+    "enabled": true,
+    "console_output": true,
+    "file_output": false,
+    "log_file": "chaos_platform.log",
+    "log_level": "INFO",
+    "timestamp_format": "%Y-%m-%d %H:%M:%S"
+  },
+
+  "THREADING": {
+    "daemon_threads": true,
+    "thread_timeout": 30,
+    "max_workers": 100,
+    "description": "Threading configuration"
+  },
+
+  "NETWORK": {
+    "socket_timeout": 5,
+    "socket_reuse_addr": true,
+    "listen_backlog": 10,
+    "buffer_sizes": {
+      "small": 1024,
+      "medium": 4096,
+      "large": 8192,
+      "xl": 16384
+    },
+    "description": "Ustawienia sieciowe"
+  },
+
+  "SECURITY": {
+    "ssl_verify": false,
+    "ssl_warnings": false,
+    "allow_self_signed": true,
+    "description": "Ustawienia bezpieczeństwa"
+  },
+
+  "MODES": {
+    "CHAOS_PROXY": 1,
+    "ISP_OBFUSCATOR": 2,
+    "HTTP_INTERCEPTOR": 3,
+    "TCP_FRAGMENTER": 4,
+    "SMUGGLING_PROBE": 5,
+    "BULK_SMUGGLING": 6,
+    "TRAFFIC_AUDIT": 7,
+    "AUDIT_SCANNER": 8,
+    "VICTIM_SERVER": 9,
+    "SUPER_MODE": 10,
+    "EXIT": 0
+  },
+
+  "SUPER_MODE": {
+    "enabled": true,
+    "run_all_modules": true,
+    "sequential": true,
+    "delay_between_modules_ms": 1000,
+    "description": "Kombinowany tryb wszystkich modułów"
+  },
+
+  "ADVANCED": {
+    "debug_mode": false,
+    "verbose_output": false,
+    "store_payloads": false,
+    "max_payload_history": 100,
+    "performance_monitoring": true,
+    "description": "Zaawansowane opcje"
+  },
+
+  "LIMITS": {
+    "max_packet_size": 65536,
+    "max_connections_per_module": 100,
+    "max_vulnerabilities_stored": 1000,
+    "max_runtime_seconds": 3600,
+    "description": "Ograniczenia systemu"
+  },
+
+  "DEFAULTS": {
+    "description": "Domyślne ustawienia globalnych parametrów",
+    "timeout": 5,
+    "retries": 3,
+    "chunk_size": 4096
+  },
+
+  "NOTES": {
+    "1": "Zmień porty jeśli są zajęte",
+    "2": "Zawsze testuj na lokalnych systemach",
+    "3": "SSL verify=False tylko dla testów!",
+    "4": "Sprawdzaj legalność testów",
+    "5": "Używaj Victim Server do eksperymentów"
+  }
+}

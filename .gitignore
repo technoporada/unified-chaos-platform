@@ -1,0 +1,56 @@
+# ============================================================================
+# Unified Chaos Platform - .gitignore
+# ============================================================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual Environment
+venv/
+env/
+.env/
+
+# Logs
+*.log
+chaos_server.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temp
+*.tmp
+*.bak
+*.orig
+
+# Coverage
+.coverage
+htmlcov/
+.coverage.*
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Config (user-specific)
+config.local.json
+
+# Archives
+*.tar.gz
+*.zip
