@@ -163,7 +163,7 @@ jobs:
       - name: Create release archive
         run: |
           echo "=== Creating release archive ==="
-          VERSION=$(grep -oP 'v\K[0-9.]+' README.txt | head -1 || echo "1.0.0")
+          VERSION=$(grep -oP 'v\K[0-9.]+' README.md | head -1 || echo "1.0.0")
           ARCHIVE="UnifiedChaosPlatform-v${VERSION}.tar.gz"
 
           # Create archive excluding git and temp files
@@ -173,7 +173,8 @@ jobs:
             --exclude='*.pyc' \
             --exclude='chaos_server.log' \
             --exclude='.github' \
-            .
+            --exclude="$ARCHIVE" \
+            *
 
           echo "✅ Created: $ARCHIVE"
           ls -lh "$ARCHIVE"
