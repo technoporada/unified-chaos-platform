@@ -20,8 +20,8 @@
 # =====================
 
 # Dashboard Server (for web terminal)
-websockets==12.0
-aiohttp==3.9.1
+websockets>=12.0
+aiohttp>=3.10.0  # poprzedni pin 3.9.1 miał >30 alertów bezpieczeństwa (CVE-2024/2025)
 
 # Network scanning & analysis
 # dnspython==2.4.2          # For DNS operations

@@ -27,6 +27,9 @@ git clone https://github.com/technoporada/unified-chaos-platform.git
 cd unified-chaos-platform
 
 # 2. Uruchom dashboard ( automatycznie instaluje zależności )
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 python dashboard.py
 
 # 3. Otwiera się przeglądarka → http://localhost:8880
