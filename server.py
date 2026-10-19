@@ -358,10 +358,14 @@ async def handle_index(request: web.Request) -> web.Response:
     return web.Response(text="index.html not found", status=404)
 
 async def handle_static(request: web.Request) -> web.Response:
-    """Serve static files."""
+    """Serve static files (confined to WORKING_DIR)."""
     filename = request.match_info["filename"]
-    filepath = os.path.join(WORKING_DIR, filename)
-    if os.path.exists(filepath) and os.path.isfile(filepath):
+    # Contain the path: reject anything that escapes WORKING_DIR (path traversal).
+    base = os.path.realpath(WORKING_DIR)
+    filepath = os.path.realpath(os.path.join(base, filename))
+    if not (filepath == base or filepath.startswith(base + os.sep)):
+        return web.Response(status=404)
+    if os.path.isfile(filepath):
         return web.FileResponse(filepath)
     return web.Response(status=404)
 
