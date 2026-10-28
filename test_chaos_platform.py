@@ -11,7 +11,9 @@ import time
 import random
 import os
 import io
+import tempfile
 
+from server import handle_static
 from UNIFIED_CHAOS_PLATFORM import (
     ChaosStats,
     ChaosProxyEngine,
@@ -677,6 +679,35 @@ class TestIntegrationLogic(SuppressPrints):
                 result = obs._add_padding(b"X")
                 sizes.append(len(result) - 1)
         self.assertTrue(all(10 <= s <= 500 for s in sizes))
+
+
+class TestStaticHandler(unittest.IsolatedAsyncioTestCase):
+
+    async def test_rejects_paths_and_serves_files_from_workspace(self):
+        with tempfile.TemporaryDirectory() as working_dir, tempfile.TemporaryDirectory() as outside_dir:
+            outside_file = os.path.join(outside_dir, "secret.txt")
+            with open(outside_file, "w", encoding="utf-8") as file:
+                file.write("secret")
+
+            inside_file = os.path.join(working_dir, "index.html")
+            with open(inside_file, "w", encoding="utf-8") as file:
+                file.write("dashboard")
+
+            with patch("server.WORKING_DIR", working_dir):
+                for filename in (
+                    os.path.relpath(outside_file, working_dir),
+                    outside_file,
+                    "..",
+                ):
+                    request = MagicMock()
+                    request.match_info = {"filename": filename}
+                    response = await handle_static(request)
+                    self.assertEqual(response.status, 404)
+
+                request = MagicMock()
+                request.match_info = {"filename": "index.html"}
+                response = await handle_static(request)
+                self.assertEqual(response.status, 200)
 
 
 if __name__ == '__main__':

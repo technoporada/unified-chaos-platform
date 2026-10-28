@@ -359,7 +359,10 @@ async def handle_index(request: web.Request) -> web.Response:
 
 async def handle_static(request: web.Request) -> web.Response:
     """Serve static files (confined to WORKING_DIR)."""
-    filename = request.match_info["filename"]
+    raw_filename = request.match_info["filename"]
+    filename = os.path.basename(raw_filename)
+    if filename != raw_filename or filename in {".", ".."}:
+        return web.Response(status=404)
     # Contain the path: reject anything that escapes WORKING_DIR (path traversal).
     base = os.path.realpath(WORKING_DIR)
     filepath = os.path.realpath(os.path.join(base, filename))
