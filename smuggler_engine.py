@@ -39,6 +39,7 @@ class ChaosSmuggler:
         try:
             # Obsługa zarówno HTTP (80) jak i HTTPS (443)
             context = ssl.create_default_context()
+            context.minimum_version = ssl.TLSVersion.TLSv1_2
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(TIMEOUT)
             

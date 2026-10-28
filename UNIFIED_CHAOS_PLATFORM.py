@@ -448,6 +448,7 @@ class BulkSmugglingTester:
     def attack(self, host):
         try:
             context = ssl.create_default_context()
+            context.minimum_version = ssl.TLSVersion.TLSv1_2
             context.check_hostname = False
             context.verify_mode = ssl.CERT_NONE
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
