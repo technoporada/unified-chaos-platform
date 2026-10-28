@@ -7,6 +7,7 @@ Uruchomienie: python3 -m unittest test_chaos_platform.py
 import unittest
 from unittest.mock import patch, MagicMock, mock_open, call
 import socket
+import ssl
 import time
 import random
 import os
@@ -14,6 +15,7 @@ import io
 import tempfile
 
 from server import handle_static
+from smuggler_engine import ChaosSmuggler
 from UNIFIED_CHAOS_PLATFORM import (
     ChaosStats,
     ChaosProxyEngine,
@@ -435,6 +437,17 @@ class TestSmugglingProbe(SuppressPrints):
 
 class TestBulkSmugglingTester(SuppressPrints):
 
+    def test_attack_requires_tls_1_2_or_newer(self):
+        context = MagicMock()
+        connection = MagicMock()
+        context.wrap_socket.return_value = connection
+
+        with patch('UNIFIED_CHAOS_PLATFORM.ssl.create_default_context', return_value=context), \
+             patch('UNIFIED_CHAOS_PLATFORM.socket.socket'):
+            BulkSmugglingTester().attack("example.com")
+
+        self.assertEqual(context.minimum_version, ssl.TLSVersion.TLSv1_2)
+
     def test_create_payload_contains_required_headers(self):
         tester = BulkSmugglingTester()
         payload = tester.create_payload("example.com")
@@ -452,6 +465,20 @@ class TestBulkSmugglingTester(SuppressPrints):
         tester = BulkSmugglingTester()
         payload = tester.create_payload("any.com")
         self.assertTrue(payload.startswith(b"POST / HTTP/1.1"))
+
+
+class TestChaosSmugglerTLS(SuppressPrints):
+
+    def test_attack_requires_tls_1_2_or_newer(self):
+        context = MagicMock()
+        connection = MagicMock()
+        context.wrap_socket.return_value = connection
+
+        with patch('smuggler_engine.ssl.create_default_context', return_value=context), \
+             patch('smuggler_engine.socket.socket'):
+            ChaosSmuggler().attack("example.com")
+
+        self.assertEqual(context.minimum_version, ssl.TLSVersion.TLSv1_2)
 
 
 # ============================================================================
