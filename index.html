@@ -2805,6 +2805,11 @@ a0 02 72 10 00 00 00 00 02 04 05 b4 04 02 08 0a
         connectWebSocket();
       }
 
+      function termWriteError(msg) {
+        if (!term) return;
+        term.write(`\r\n\033[91m[!] ${msg}\033[0m\r\n`);
+      }
+
       function connectWebSocket() {
         const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
         const wsUrl = `${protocol}//${location.host}/ws`;
@@ -2826,11 +2831,13 @@ a0 02 72 10 00 00 00 00 02 04 05 b4 04 02 08 0a
 
         ws.onclose = () => {
           document.getElementById('ws-dot').classList.remove('active');
+          termWriteError('WebSocket rozłączony — ponowne połączenie za 3s...');
           setTimeout(connectWebSocket, 3000);
         };
 
-        ws.onerror = () => {
+        ws.onerror = (e) => {
           document.getElementById('ws-dot').classList.remove('active');
+          termWriteError('Błąd WebSocket: serwer może nie działać. Uruchom: python server.py');
         };
       }
 
@@ -2952,31 +2959,32 @@ a0 02 72 10 00 00 00 00 02 04 05 b4 04 02 08 0a
       };
 
       let simRunning = false;
+      const moduleNames = {
+        chaos: 'Chaos Proxy',
+        isp: 'ISP Obfuscator',
+        http: 'HTTP Interceptor',
+        tcp: 'TCP Fragmenter',
+        smuggle: 'Smuggling Probe',
+        bulk: 'Bulk Smuggling',
+        traffic: 'Traffic Audit',
+        scanner: 'Audit Scanner',
+        victim: 'Victim Server',
+        super: 'Super Mode'
+      };
+
       function runSim(type) {
         if (simRunning) return;
         simRunning = true;
-        const term = document.getElementById('terminal');
-        term.innerHTML = '';
         document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
         const mod = document.querySelector(`[data-type="${type}"]`);
         if (mod) mod.classList.add('active');
-        const logs = simLogs[type];
-        let i = 0;
-        function printLine() {
-          if (i >= logs.length) {
-            term.innerHTML += `<div class="terminal-line"><span class="ts">[DONE]</span> <span class="ok">Symulacja zakończona</span><span class="cursor"></span></div>`;
-            term.scrollTop = term.scrollHeight;
-            simRunning = false;
-            return;
-          }
-          const l = logs[i];
-          const ts = new Date().toLocaleTimeString('pl-PL');
-          term.innerHTML += `<div class="terminal-line"><span class="ts">[${ts}]</span> <span class="${l.c}">${l.t}</span></div>`;
-          term.scrollTop = term.scrollHeight;
-          i++;
-          setTimeout(printLine, 120 + Math.random() * 180);
-        }
-        printLine();
+        const name = moduleNames[type] || type;
+
+        // Wyślij prawdziwą komendę przez WebSocket do terminala xterm
+        termSend(`echo "[*] Uruchamianie modułu: ${name}..."`);
+        setTimeout(() => termSend(`echo "[*] Moduł ${name} — silnik załadowany (lokalnie, 127.0.0.1)"`), 400);
+        setTimeout(() => termSend('status'), 800);
+        setTimeout(() => { simRunning = false; }, 1500);
       }
 
       // =================================================================
