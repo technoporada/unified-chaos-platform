@@ -1207,13 +1207,13 @@
               </div>
               <div id="xterm-container" style="background:#0a0a0a; min-height:380px; max-height:420px; padding:5px;"></div>
               <div style="background:var(--bg-input); border-top:1px solid var(--border); padding:8px 15px; display:flex; gap:8px; flex-wrap:wrap;">
-                <button class="editor-btn" onclick="termSend('help')" style="font-size:0.75em">help</button>
-                <button class="editor-btn" onclick="termSend('status')" style="font-size:0.75em">status</button>
-                <button class="editor-btn" onclick="termSend('modules')" style="font-size:0.75em">modules</button>
-                <button class="editor-btn" onclick="termSend('test')" style="font-size:0.75em">test</button>
-                <button class="editor-btn" onclick="termSend('install')" style="font-size:0.75em">install</button>
-                <button class="editor-btn" onclick="termSend('platform')" style="font-size:0.75em">platform</button>
-                <button class="editor-btn" onclick="termSend('clear')" style="font-size:0.75em">clear</button>
+                <button class="editor-btn" onclick="termSim('help')" style="font-size:0.75em">help</button>
+                <button class="editor-btn" onclick="termSim('status')" style="font-size:0.75em">status</button>
+                <button class="editor-btn" onclick="termSim('modules')" style="font-size:0.75em">modules</button>
+                <button class="editor-btn" onclick="termSim('test')" style="font-size:0.75em">test</button>
+                <button class="editor-btn" onclick="termSim('install')" style="font-size:0.75em">install</button>
+                <button class="editor-btn" onclick="termSim('platform')" style="font-size:0.75em">platform</button>
+                <button class="editor-btn" onclick="termSim('clear')" style="font-size:0.75em">clear</button>
               </div>
             </div>
           </div>
@@ -2296,13 +2296,8 @@ with open("report.json", "w") as f:
         const token = input.value.trim();
         if (token) {
           localStorage.setItem('chaos_token', token);
-          status.textContent = 'Token zapisany — terminal odblokowany.';
+          status.textContent = 'Token zapisany (terminal w trybie symulacji).';
           status.style.color = 'var(--primary)';
-          // Jeśli WebSocket już istnieje, spróbuj połączyć się ponownie
-          if (typeof connectWebSocket === 'function') {
-            try { ws.close(); } catch(e) {}
-            setTimeout(connectWebSocket, 500);
-          }
         } else {
           status.textContent = 'Wpisz token primero.';
           status.style.color = 'var(--danger)';
@@ -2749,10 +2744,9 @@ a0 02 72 10 00 00 00 00 02 04 05 b4 04 02 08 0a
       }
 
       // =================================================================
-      // REAL TERMINAL - xterm.js + WebSocket
+      // TERMINAL SYMULACJA (brak WebSocket, brak wykonywania komend w systemie)
       // =================================================================
       let term = null;
-      let ws = null;
       let currentLine = '';
 
       function initTerminal() {
@@ -2780,13 +2774,25 @@ a0 02 72 10 00 00 00 00 02 04 05 b4 04 02 08 0a
         window.addEventListener('resize', () => fitAddon.fit());
 
         term.onData(data => {
-          if (!ws || ws.readyState !== WebSocket.OPEN) return;
-
           if (data === '\r') {
-            // Enter
+            // Enter - symulacja odpowiedzi
             term.write('\r\n');
-            ws.send(JSON.stringify({ command: currentLine }));
+            const cmd = currentLine.trim();
             currentLine = '';
+            if (cmd === 'help' || cmd === '') {
+              term.write('> Terminal w trybie symulacji (brak WebSocket, brak RCE)\r\n');
+              term.write('> Komendy: help, status, modules, clear\r\n');
+              term.write('> Moduły: kliknij w kafelek w DASHBOARD\r\n\r\n');
+            } else if (cmd === 'status') {
+              term.write('> Platform: READY\r\n');
+              term.write('> Mode: Symulacja terminala (bezpieczna)\r\n\r\n');
+            } else if (cmd === 'clear') {
+              term.clear();
+            } else {
+              term.write(`> Nieznana komenda: ${cmd}\r\n`);
+              term.write('> Wpisz "help" dla pomocy\r\n\r\n');
+            }
+            term.write('$ ');
           } else if (data === '\x7f') {
             // Backspace
             if (currentLine.length > 0) {
@@ -2797,14 +2803,17 @@ a0 02 72 10 00 00 00 00 02 04 05 b4 04 02 08 0a
             // Ctrl+C
             term.write('^C\r\n');
             currentLine = '';
-            ws.send(JSON.stringify({ command: 'clear' }));
+            term.write('$ ');
           } else {
             currentLine += data;
             term.write(data);
           }
         });
 
-        connectWebSocket();
+        term.write('> Unified Chaos Platform - Terminal (SYMULACJA)\r\n');
+        term.write('> Brak WebSocket, brak wykonywania komend w systemie\r\n');
+        term.write('> Wpisz "help" dla pomocy\r\n\r\n');
+        term.write('$ ');
       }
 
       function termWriteError(msg) {
@@ -2812,45 +2821,25 @@ a0 02 72 10 00 00 00 00 02 04 05 b4 04 02 08 0a
         term.write(`\r\n\x1b[91m[!] ${msg}\x1b[0m\r\n`);
       }
 
-      function connectWebSocket() {
-        const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${location.host}/ws`;
-
-        ws = new WebSocket(wsUrl);
-
-        ws.onopen = () => {
-          document.getElementById('ws-dot').classList.add('active');
-        };
-
-        ws.onmessage = (event) => {
-          const data = event.data;
-          if (data === '__CLEAR__') {
-            term.clear();
-          } else {
-            term.write(data);
-          }
-        };
-
-        ws.onclose = () => {
-          document.getElementById('ws-dot').classList.remove('active');
-          termWriteError('WebSocket rozłączony — ponowne połączenie za 3s...');
-          setTimeout(connectWebSocket, 3000);
-        };
-
-        ws.onerror = (e) => {
-          document.getElementById('ws-dot').classList.remove('active');
-          termWriteError('Błąd WebSocket: serwer może nie działać. Uruchom: python server.py');
-        };
-      }
-
-      function termSend(cmd) {
-        if (!ws || ws.readyState !== WebSocket.OPEN) return;
-        if (cmd === 'clear') {
+      function termSim(cmd) {
+        if (!term) return;
+        const c = cmd.trim();
+        if (c === 'help' || c === '') {
+          term.write('\r\n> Terminal w trybie symulacji (brak WebSocket, brak RCE)\r\n');
+          term.write('> Komendy: help, status, modules, clear\r\n');
+          term.write('> Moduły: kliknij w kafelek w DASHBOARD\r\n\r\n');
+        } else if (c === 'status') {
+          term.write('\r\n> Platform: READY\r\n');
+          term.write('> Mode: Symulacja terminala (bezpieczna)\r\n\r\n');
+        } else if (c === 'clear') {
           term.clear();
-          ws.send(JSON.stringify({ command: 'clear' }));
-          return;
+        } else if (c === 'modules') {
+          term.write('\r\n> Moduły: chaos, isp, http, tcp, smuggle, bulk, traffic, scanner, victim, super\r\n\r\n');
+        } else {
+          term.write(`\r\n> Nieznana komenda: ${c}\r\n`);
+          term.write('> Wpisz "help" dla pomocy\r\n\r\n');
         }
-        ws.send(JSON.stringify({ command: cmd }));
+        term.write('$ ');
       }
 
       // Init terminal on load
@@ -2980,13 +2969,22 @@ a0 02 72 10 00 00 00 00 02 04 05 b4 04 02 08 0a
         document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
         const mod = document.querySelector(`[data-type="${type}"]`);
         if (mod) mod.classList.add('active');
-        const name = moduleNames[type] || type;
-
-        // Wyślij prawdziwą komendę przez WebSocket do terminala xterm
-        termSend(`echo "[*] Uruchamianie modułu: ${name}..."`);
-        setTimeout(() => termSend(`echo "[*] Moduł ${name} — silnik załadowany (lokalnie, 127.0.0.1)"`), 400);
-        setTimeout(() => termSend('status'), 800);
-        setTimeout(() => { simRunning = false; }, 1500);
+        const logs = simLogs[type];
+        let i = 0;
+        function printLine() {
+          if (i >= logs.length) {
+            simRunning = false;
+            return;
+          }
+          const l = logs[i];
+          const ts = new Date().toLocaleTimeString('pl-PL');
+          if (term) {
+            term.write(`\r\n[${ts}] ${l.t}\r\n`);
+          }
+          i++;
+          setTimeout(printLine, 120 + Math.random() * 180);
+        }
+        printLine();
       }
 
       // =================================================================
