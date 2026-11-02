@@ -68,6 +68,14 @@ SHELL: str = "/bin/bash" if sys.platform != "win32" else "cmd.exe"
 RATE_LIMIT_COMMANDS: int = 30  # max commands per minute
 RATE_LIMIT_WINDOW: float = 60.0  # window in seconds
 
+# Wymagany token do terminala WebSocket (RCE bez hasła = dziura krytyczna)
+CHAOS_TOKEN: str = os.environ.get("CHAOS_TOKEN", "")
+if not CHAOS_TOKEN:
+    import secrets as _secrets
+    CHAOS_TOKEN = _secrets.token_urlsafe(32)
+    print(f"[!] WYGENEROWANO TOKEN: {CHAOS_TOKEN}")
+    print(f"[!] Użyj: export CHAOS_TOKEN={CHAOS_TOKEN}")
+
 # ANSI Colors
 class C:
     RESET   = "\033[0m"
@@ -382,6 +390,17 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
 
     session_id = id(ws)
     client_ip = request.remote or "unknown"
+
+    # Wymagany token — bez niego brak dostępu do terminala (RCE)
+    token = request.headers.get("Authorization", "").replace("Bearer ", "", 1)
+    query_token = request.rel_url.query.get("token", "")
+    if not token and query_token:
+        token = query_token
+    if not CHAOS_TOKEN or token != CHAOS_TOKEN:
+        logger.warning(f"WebSocket odrzucony (brak tokenu): {client_ip}")
+        await ws.close(code=1008, message=b"brak tokena")
+        return ws
+
     logger.info(f"WebSocket connected: {client_ip} (session {session_id})")
 
     proc = await terminal.create_session(session_id)

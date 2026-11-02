@@ -449,8 +449,6 @@ class BulkSmugglingTester:
         try:
             context = ssl.create_default_context()
             context.minimum_version = ssl.TLSVersion.TLSv1_2
-            context.check_hostname = False
-            context.verify_mode = ssl.CERT_NONE
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(self.timeout)
             conn = context.wrap_socket(sock, server_hostname=host)
@@ -695,8 +693,14 @@ class UnifiedChaos:
 
     def run_audit_scanner(self):
         scanner = AuditScanner()
-        path = input("[?] Ścieżka [d:\\Game]: ").strip() or "d:\\Game"
-        scanner.audit_files(path)
+        path = input("[?] Ścieżka [bieżący katalog]: ").strip() or os.getcwd()
+        # Zabezpieczenie przed path traversal — tylko wewnątrz WORKING_DIR
+        base_real = os.path.realpath(os.path.dirname(os.path.abspath(__file__)))
+        target_real = os.path.realpath(path)
+        if not (target_real == base_real or target_real.startswith(base_real + os.sep)):
+            print(f"[!] Odmowa dostępu: ścieżka poza dozwolonym katalogiem ({base_real})")
+            return
+        scanner.audit_files(target_real)
 
     def run_combined_mode(self):
         print("\n[*] TRYB KOMBINOWANY - Uruchamianie wszystkich silników...")

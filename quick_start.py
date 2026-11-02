@@ -25,7 +25,7 @@ def run_test(num, name, command, description):
     if response == 'y':
         try:
             if isinstance(command, str):
-                os.system(command)
+                subprocess.run(command, shell=False, check=True)
             else:
                 subprocess.run(command, check=True)
             print(f"\n✓ Test {num} zakończony")

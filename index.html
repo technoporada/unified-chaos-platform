@@ -1096,6 +1096,18 @@
         </div>
       </div>
 
+      <!-- Token do terminala WebSocket (wymagany po starcie serwera) -->
+      <div class="info-box" style="border-left-color: var(--warn);">
+        <h3 style="color: var(--warn);">> TOKEN TERMINALA</h3>
+        <p style="font-size:0.9em; margin-bottom:10px;">Token wyświetlony w konsoli serwera przy starcie. Wpisz go poniżej, żeby odblokować terminal WebSocket:</p>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="password" id="chaos-token-input" placeholder="wklej token..." style="flex:1; background:var(--bg-input); border:1px solid var(--border); color:var(--text); font-family:Consolas,monospace; padding:8px 10px; border-radius:4px;">
+          <button onclick="saveToken()" style="background:var(--primary); color:var(--bg); border:none; padding:8px 16px; border-radius:4px; cursor:pointer; font-family:Consolas,monospace;">ZAPISZ</button>
+          <span id="token-status" style="font-size:0.85em; color:var(--primary-dim);"></span>
+        </div>
+        <p style="font-size:0.8em; color:var(--text-dim); margin-top:8px;">Ustaw też zmienną środowiskową: <code style="color:var(--primary);">export CHAOS_TOKEN=twój_token</code></p>
+      </div>
+
       <!-- ============================================================
            TAB: DASHBOARD
            ============================================================ -->
@@ -2276,6 +2288,25 @@ with open("report.json", "w") as f:
         document.documentElement.setAttribute('data-theme', theme);
       }
 
+      function saveToken() {
+        const input = document.getElementById('chaos-token-input');
+        const status = document.getElementById('token-status');
+        const token = input.value.trim();
+        if (token) {
+          localStorage.setItem('chaos_token', token);
+          status.textContent = 'Token zapisany — terminal odblokowany.';
+          status.style.color = 'var(--primary)';
+          // Jeśli WebSocket już istnieje, spróbuj połączyć się ponownie
+          if (typeof connectWebSocket === 'function') {
+            try { ws.close(); } catch(e) {}
+            setTimeout(connectWebSocket, 500);
+          }
+        } else {
+          status.textContent = 'Wpisz token primero.';
+          status.style.color = 'var(--danger)';
+        }
+      }
+
       // Init saved preferences
       document.querySelector('.lang-selector').value = currentLang;
       document.querySelector('.theme-selector').value = currentTheme;
@@ -2776,7 +2807,8 @@ a0 02 72 10 00 00 00 00 02 04 05 b4 04 02 08 0a
 
       function connectWebSocket() {
         const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${location.host}/ws`;
+        const token = localStorage.getItem('chaos_token') || '';
+        const wsUrl = `${protocol}//${location.host}/ws${token ? '?token=' + encodeURIComponent(token) : ''}`;
 
         ws = new WebSocket(wsUrl);
 

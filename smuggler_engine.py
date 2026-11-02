@@ -43,7 +43,6 @@ class ChaosSmuggler:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(TIMEOUT)
             
-            # Większość Bug Bounty to HTTPS
             conn = context.wrap_socket(sock, server_hostname=host)
             
             start = time.time()
@@ -105,10 +104,9 @@ class ChaosSmuggler:
         print(f"\n[*] Operacja zakończona. Sprawdź {OUTPUT_FILE}")
 
 if __name__ == "__main__":
-    # Tutaj wrzucasz subdomeny wyciągnięte np. z HackerOne
+    # Tylko cele lokalne do testów — NIE atakuj zewnętrznych serwerów bez zgody!
     targets_to_test = [
-        "example.com", 
-        "vulnerable-subdomain.target.com"
+        "127.0.0.1",
     ]
     
     engine = ChaosSmuggler()

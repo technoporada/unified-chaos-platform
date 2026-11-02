@@ -160,9 +160,9 @@
   },
 
   "SECURITY": {
-    "ssl_verify": false,
+    "ssl_verify": true,
     "ssl_warnings": false,
-    "allow_self_signed": true,
+    "allow_self_signed": false,
     "description": "Ustawienia bezpieczeństwa"
   },
 
