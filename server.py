@@ -396,7 +396,7 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
     query_token = request.rel_url.query.get("token", "")
     if not token and query_token:
         token = query_token
-    if not CHAOS_TOKEN or token != CHAOS_TOKEN:
+    if CHAOS_TOKEN and token != CHAOS_TOKEN:
         logger.warning(f"WebSocket odrzucony (brak tokenu): {client_ip}")
         await ws.close(code=1008, message=b"brak tokena")
         return ws
