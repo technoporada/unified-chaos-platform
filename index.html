@@ -2807,7 +2807,7 @@ a0 02 72 10 00 00 00 00 02 04 05 b4 04 02 08 0a
 
       function termWriteError(msg) {
         if (!term) return;
-        term.write(`\r\n\033[91m[!] ${msg}\033[0m\r\n`);
+        term.write(`\r\n\x1b[91m[!] ${msg}\x1b[0m\r\n`);
       }
 
       function connectWebSocket() {
