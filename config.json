@@ -74,7 +74,7 @@
     "threads": 20,
     "timeout_per_target": 7,
     "port": 443,
-    "ssl_verify": false,
+    "ssl_verify": true,
     "description": "Masowy test Request Smuggling (paralelnie)"
   },
 
@@ -99,7 +99,7 @@
 
   "AUDIT_SCANNER": {
     "enabled": true,
-    "default_path": "d:\\Game",
+    "default_path": ".",
     "file_extensions": [".py", ".js", ".sh", ".php", ".cpp"],
     "patterns": {
       "SENSITIVE_DATA": "(password|secret|api_key|token|access_key|private_key)[\\s]*[:=][\\s]*['\\\"].*['\\\"]",

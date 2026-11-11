@@ -130,8 +130,8 @@ class ConfigValidator:
     """Validate config.json at startup."""
 
     REQUIRED_KEYS = {
-        "chaos_proxy": {"listen_port": int, "target_host": str, "target_port": int, "mutation_rate": float},
-        "smuggling": {"threads": int, "timeout": int},
+        "CHAOS_PROXY": {"listen_port": int, "target_host": str, "target_port": int, "mutation_rate": float},
+        "BULK_SMUGGLING_TESTER": {"threads": int, "timeout_per_target": int},
     }
 
     def validate(self, config_path: str) -> tuple:
@@ -159,16 +159,16 @@ class ConfigValidator:
                     errors.append(f"Wrong type: {section}.{key} should be {expected_type.__name__}")
 
         # Validate port ranges
-        if "chaos_proxy" in config:
-            port = config["chaos_proxy"].get("listen_port", 0)
+        if "CHAOS_PROXY" in config:
+            port = config["CHAOS_PROXY"].get("listen_port", 0)
             if port < 1024 or port > 65535:
                 errors.append(f"Invalid port: {port} (should be 1024-65535)")
-            rate = config["chaos_proxy"].get("mutation_rate", 0)
+            rate = config["CHAOS_PROXY"].get("mutation_rate", 0)
             if rate < 0 or rate > 1:
                 errors.append(f"Invalid mutation_rate: {rate} (should be 0.0-1.0)")
 
-        if "smuggling" in config:
-            threads = config["smuggling"].get("threads", 0)
+        if "BULK_SMUGGLING_TESTER" in config:
+            threads = config["BULK_SMUGGLING_TESTER"].get("threads", 0)
             if threads < 1 or threads > 100:
                 errors.append(f"Invalid threads: {threads} (should be 1-100)")
 
