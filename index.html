@@ -2814,7 +2814,8 @@ a0 02 72 10 00 00 00 00 02 04 05 b4 04 02 08 0a
 
       function connectWebSocket() {
         const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${location.host}/ws`;
+        const token = localStorage.getItem('chaos_token') || '';
+        const wsUrl = token ? `${protocol}//${location.host}/ws?token=${encodeURIComponent(token)}` : `${protocol}//${location.host}/ws`;
 
         ws = new WebSocket(wsUrl);
 
@@ -2833,6 +2834,10 @@ a0 02 72 10 00 00 00 00 02 04 05 b4 04 02 08 0a
 
         ws.onclose = () => {
           document.getElementById('ws-dot').classList.remove('active');
+          if (!localStorage.getItem('chaos_token')) {
+            termWriteError('Brak tokena — wpisz CHAOS_TOKEN w panelu powyżej i kliknij ZAPISZ.');
+            return;
+          }
           termWriteError('WebSocket rozłączony — ponowne połączenie za 3s...');
           setTimeout(connectWebSocket, 3000);
         };
