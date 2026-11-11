@@ -19,7 +19,7 @@
 
 ## 🎯 Co to jest?
 
-Unified Chaos Platform to potężne narzędzie do testowania bezpieczeństwa sieci, składające się z **10 niezależnych modułów** połączonych w jedną platformę z dashboardem w przeglądarce, prawdziwym terminalem WebSocket i cyberpunkowym interfejsem.
+Unified Chaos Platform to narzędzie badawcze do testowania bezpieczeństwa sieci, składające się z **10 modułów** połączonych w jedną platformę z dashboardem w przeglądarce i terminalem WebSocket. Nie jest production-grade.
 
 ## ⚡ Szybki Start
 
