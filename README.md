@@ -64,7 +64,7 @@ python dashboard.py
 - **3 Tab'y:** Dashboard / Nauka / Guru
 - **3 Motywy:** Matrix (zielony) / Synthwave (fioletowy) / Amber CRT (bursztynowy)
 - **6 Języków:** PL, EN, DE, FR, ZH, RO
-- **Terminal symulowany** (xterm.js, brak WebSocket, brak wykonywania komend w systemie)
+- **Prawdziwy terminal** z xterm.js + WebSocket
 - **Easter Eggs** (ukryte!) 🥚
 
 ## 🧪 Testy
@@ -117,12 +117,10 @@ unified-chaos-platform/
 ## 🔒 Bezpieczeństwo
 
 - **127.0.0.1 only** - binduje TYLKO do localhost
-- **Brak WebSocket** - terminal usunięty, zero wykonywania komend w systemie (zero RCE)
-- **Brak rate limiting** - niepotrzebne bez WebSocket
+- **Rate limiting** - 30 komend/60s per klient
 - **Config validation** - automatyczna walidacja przy starcie
 - **Proper logging** - logi do pliku `chaos_server.log`
 - **No bare except** - wszystkie excepty mają `Exception`
-- **Path traversal zabezpieczony** - statyczne pliki tylko w obrębie WORKING_DIR
 
 ## 📦 Instalacja Zależności
 
@@ -149,10 +147,7 @@ python dashboard.py  # zainstaluje samo
    - 💣 Self Destruct
    - 📺 Glitch Mode
 
-**Terminal w trybie symulacji:**
-- Brak WebSocket, brak wykonywania komend w systemie (zero RCE)
-- Komendy: `help`, `status`, `modules`, `clear`
-- Moduły uruchamiane przez kliknięcie w kafelek w DASHBOARD (symulacja logów)
+**Secret terminal commands:** `matrix`, `hack`, `konami`, `42`, `whoami`, `sudo`
 
 ## 🛠️ Dla Deweloperów
 
