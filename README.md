@@ -12,6 +12,8 @@
 [![Platforms](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg)]()
 
 > **Keywords:** `cybersecurity` `network-security` `penetration-testing` `http-smuggling` `tcp-fragmentation` `traffic-obfuscation` `packet-inspection` `security-toolkit` `ctf` `bug-bounty` `ethical-hacking` `proxy-server` `chaos-engineering`
+>
+> ⚠️ **Uwaga:** To narzędzie badawcze/demo. Działa, ale nie jest production-grade — monolit, brak pełnej walidacji, "chaos" w kodzie. Używaj na własne ryzyko, tylko lokalnie i legalnie.
 
 ---
 
