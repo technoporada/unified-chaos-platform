@@ -647,8 +647,8 @@ def main() -> None:
     def open_browser():
         webbrowser.open(f"http://localhost:{port}")
 
-    loop = asyncio.get_event_loop()
-    loop.call_later(1.0, open_browser)
+    import threading
+    threading.Timer(1.0, open_browser).start()
 
     logger.info(f"Opening browser: http://localhost:{port}")
     logger.info("Press Ctrl+C to stop server")
@@ -663,7 +663,7 @@ def main() -> None:
         sys.exit(1)
     except KeyboardInterrupt:
         logger.info("Shutting down server...")
-        loop.run_until_complete(terminal.close_all())
+        asyncio.run(terminal.close_all())
         logger.info("Server stopped.")
 
 if __name__ == "__main__":
